@@ -1,1580 +1,349 @@
---========================================================--
---                  KUALE HUB
---                  STEAL AN EGG
---========================================================--
-
-repeat task.wait() until game:IsLoaded()
-
+-- [[ KUALE HUB - ROBA UN HUEVO (SAFE ANTI-DETECTION EDITION) ]]
 local Players = game:GetService("Players")
-local UIS = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
-local VirtualUser = game:GetService("VirtualUser")
+local CoreGui = game:GetService("CoreGui")
+local Workspace = game:GetService("Workspace")
+local TweenService = game:GetService("TweenService")
 
-local LP = Players.LocalPlayer
-local PlayerGui = LP:WaitForChild("PlayerGui")
-
---========================================================--
--- CONFIG
---========================================================--
-
-local Config = {
-    AutoSteal = false,
-    InstantSteal = false,
-    BestEgg = false,
-
-    EggESP = false,
-    PlayerESP = false,
-
-    AntiGuard = false,
-    AutoReturn = false,
-
-    Speed = false,
-    SpeedValue = 35,
-
-    HighJump = false,
-    InfiniteJump = false,
-
-    AutoPlace = false,
-    AutoHatch = false,
-    AutoFuse = false,
-    AutoSell = false,
-
-    AutoTreadmill = false,
-    AutoUpgrade = false,
-    AutoRewards = false,
-
-    FPSBoost = false,
-    AntiAFK = false,
-
-    MinValue = 0
-}
-
---========================================================--
--- CHARACTER
---========================================================--
-
-local Character
-local Humanoid
-local Root
-
-local function UpdateCharacter()
-    Character = LP.Character or LP.CharacterAdded:Wait()
-    Humanoid = Character:WaitForChild("Humanoid")
-    Root = Character:WaitForChild("HumanoidRootPart")
+if CoreGui:FindFirstChild("KualehubPro") then
+    CoreGui.KualehubPro:Destroy()
 end
 
-UpdateCharacter()
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "KualehubPro"
+ScreenGui.Parent = CoreGui
+ScreenGui.ResetOnSpawn = false
 
-LP.CharacterAdded:Connect(function()
-    task.wait(1)
-    UpdateCharacter()
+local function SendNotification(title, text, duration)
+    local notif = Instance.new("Frame")
+    notif.Parent = ScreenGui
+    notif.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+    notif.Position = UDim2.new(1, 20, 0.8, 0)
+    notif.Size = UDim2.new(0, 240, 0, 55)
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = notif
+    
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(255, 128, 0)
+    stroke.Thickness = 1.5
+    stroke.Parent = notif
+    
+    local tLabel = Instance.new("TextLabel")
+    tLabel.Parent = notif
+    tLabel.BackgroundTransparency = 1
+    tLabel.Position = UDim2.new(0.05, 0, 0.1, 0)
+    tLabel.Size = UDim2.new(0.9, 0, 0, 20)
+    tLabel.Font = Enum.Font.GothamBold
+    tLabel.Text = title
+    tLabel.TextColor3 = Color3.fromRGB(255, 165, 0)
+    tLabel.TextSize = 13
+    
+    local dLabel = Instance.new("TextLabel")
+    dLabel.Parent = notif
+    dLabel.BackgroundTransparency = 1
+    dLabel.Position = UDim2.new(0.05, 0, 0.5, 0)
+    dLabel.Size = UDim2.new(0.9, 0, 0, 20)
+    dLabel.Font = Enum.Font.Gotham
+    dLabel.Text = text
+    dLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    dLabel.TextSize = 11
+    
+    notif:TweenPosition(UDim2.new(1, -260, 0.8, 0), "Out", "Quint", 0.4, true)
+    task.delay(duration or 3, function()
+        notif:TweenPosition(UDim2.new(1, 20, 0.8, 0), "In", "Quint", 0.4, true)
+        task.wait(0.4)
+        notif:Destroy()
+    end)
+end
+
+-- Botón Flotante KU
+local ToggleBtn = Instance.new("TextButton")
+ToggleBtn.Name = "ToggleBtn"
+ToggleBtn.Parent = ScreenGui
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+ToggleBtn.Position = UDim2.new(0.03, 0, 0.35, 0)
+ToggleBtn.Size = UDim2.new(0, 55, 0, 55)
+ToggleBtn.Font = Enum.Font.GothamBold
+ToggleBtn.Text = "KU"
+ToggleBtn.TextColor3 = Color3.fromRGB(255, 128, 0)
+ToggleBtn.TextSize = 20
+
+local tCorner = Instance.new("UICorner")
+tCorner.CornerRadius = UDim.new(0, 12)
+tCorner.Parent = ToggleBtn
+
+local tStroke = Instance.new("UIStroke")
+tStroke.Color = Color3.fromRGB(255, 165, 0)
+tStroke.Thickness = 2
+tStroke.Parent = ToggleBtn
+
+-- Marco Principal
+local MainFrame = Instance.new("Frame")
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+MainFrame.Position = UDim2.new(0.15, 0, 0.1, 0)
+MainFrame.Size = UDim2.new(0, 320, 0, 450)
+MainFrame.Visible = false
+
+local mCorner = Instance.new("UICorner")
+mCorner.CornerRadius = UDim.new(0, 10)
+mCorner.Parent = MainFrame
+
+local mStroke = Instance.new("UIStroke")
+mStroke.Color = Color3.fromRGB(255, 128, 0)
+mStroke.Thickness = 2
+mStroke.Parent = MainFrame
+
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Parent = MainFrame
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Position = UDim2.new(0.05, 0, 0.02, 0)
+TitleLabel.Size = UDim2.new(0.9, 0, 0, 30)
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.Text = "🔥 KUALE HUB | Anti-Bypass Edition"
+TitleLabel.TextColor3 = Color3.fromRGB(255, 165, 0)
+TitleLabel.TextSize = 16
+
+local Scrolling = Instance.new("ScrollingFrame")
+Scrolling.Parent = MainFrame
+Scrolling.BackgroundTransparency = 1
+Scrolling.Position = UDim2.new(0.05, 0, 0.12, 0)
+Scrolling.Size = UDim2.new(0.9, 0, 0.85, 0)
+Scrolling.CanvasSize = UDim2.new(0, 0, 2.0, 0)
+Scrolling.ScrollBarThickness = 4
+
+local UIList = Instance.new("UIListLayout")
+UIList.Parent = Scrolling
+UIList.SortOrder = Enum.SortOrder.LayoutOrder
+UIList.Padding = UDim.new(0, 10)
+
+ToggleBtn.MouseButton1Click:Connect(function()
+    MainFrame.Visible = not MainFrame.Visible
 end)
 
---========================================================--
--- NOTIFY
---========================================================--
-
-local function Notify(text)
-
-    pcall(function()
-
-        game:GetService("StarterGui"):SetCore(
-            "SendNotification",
-            {
-                Title = "KUALE HUB",
-                Text = tostring(text),
-                Duration = 3
-            }
-        )
-
-    end)
-
+local function CreateButton(text, order, callback)
+    local btn = Instance.new("TextButton")
+    btn.Name = "Btn_" .. order
+    btn.Parent = Scrolling
+    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    btn.Size = UDim2.new(1, 0, 0, 42)
+    btn.Font = Enum.Font.GothamBold
+    btn.Text = text
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextSize = 12
+    btn.LayoutOrder = order
+    
+    local bCorner = Instance.new("UICorner")
+    bCorner.CornerRadius = UDim.new(0, 8)
+    bCorner.Parent = btn
+    
+    local bStroke = Instance.new("UIStroke")
+    bStroke.Color = Color3.fromRGB(100, 100, 110)
+    bStroke.Thickness = 1
+    bStroke.Parent = btn
+    
+    btn.MouseButton1Click:Connect(callback)
 end
 
---========================================================--
--- EGG FILTER
---========================================================--
-
-local BadEggWords = {
-    "fusion",
-    "fuse",
-    "machine",
-    "sell",
-    "seller",
-    "hatch",
-    "hatcher",
-    "treadmill",
-    "upgrade",
-    "shop",
-    "button",
-    "station",
-    "prompt",
-    "portal",
-    "teleport",
-    "trade"
-}
-
-local function ContainsBadWord(name)
-
-    name = string.lower(tostring(name))
-
-    for _,word in ipairs(BadEggWords) do
-
-        if string.find(name,word,1,true) then
-            return true
-        end
-
-    end
-
-    return false
-end
-
---========================================================--
--- EGG DETECTION
---========================================================--
-
-local function IsRealEgg(obj)
-
-    if not obj then
+-- ESTRUCTURA DE FILTRADO (FILTRA MÁQUINAS Y TIENDAS EXCLUSIVAMENTE)
+local function IsValidEggPrompt(prompt)
+    if not prompt:IsA("ProximityPrompt") or not prompt.Parent then return false end
+    
+    local parent = prompt.Parent
+    local name = parent.Name:lower()
+    local promptText = (prompt.ObjectText .. " " .. prompt.ActionText):lower()
+    
+    -- MÁQUINA / EXCLUSIÓN EXPLICITA
+    if name:find("fuse") or name:find("machine") or name:find("treadmill") or name:find("shop") or promptText:find("fusionar") or promptText:find("fuse") then
         return false
     end
-
-    local name = string.lower(obj.Name)
-
-    if ContainsBadWord(name) then
-        return false
-    end
-
-    local looksLikeEgg =
-        string.find(name,"egg",1,true)
-        or obj:GetAttribute("EggName") ~= nil
-        or obj:GetAttribute("Egg") ~= nil
-
-    if not looksLikeEgg then
-        return false
-    end
-
-    -- Debe tener una parte física
-    local part
-
-    if obj:IsA("BasePart") then
-        part = obj
-    elseif obj:IsA("Model") then
-        part =
-            obj.PrimaryPart
-            or obj:FindFirstChildWhichIsA(
-                "BasePart",
-                true
-            )
-    else
-        part =
-            obj:FindFirstChildWhichIsA(
-                "BasePart",
-                true
-            )
-    end
-
-    if not part then
-        return false
-    end
-
-    return true
-end
-
---========================================================--
--- DISPLAY NAME
---========================================================--
-
-local function GetEggName(obj)
-
-    local attributes = {
-        "DisplayName",
-        "EggName",
-        "Display",
-        "Egg"
-    }
-
-    for _,key in ipairs(attributes) do
-
-        local value = obj:GetAttribute(key)
-
-        if value ~= nil
-        and tostring(value) ~= "" then
-
-            return tostring(value)
-
-        end
-    end
-
-    for _,v in ipairs(obj:GetDescendants()) do
-
-        if v:IsA("StringValue") then
-
-            local n = string.lower(v.Name)
-
-            if n == "displayname"
-            or n == "eggname"
-            or n == "display"
-            or n == "egg" then
-
-                if v.Value ~= "" then
-                    return v.Value
-                end
-
-            end
-
-        end
-
-    end
-
-    return obj.Name
-end
-
---========================================================--
--- VALUE
---========================================================--
-
-local function GetEggValue(obj)
-
-    local highest = 0
-
-    local keys = {
-        "Value",
-        "EggValue",
-        "Income",
-        "CashPerSecond",
-        "MoneyPerSecond",
-        "Generation",
-        "ValuePerSecond"
-    }
-
-    for _,key in ipairs(keys) do
-
-        local value = obj:GetAttribute(key)
-
-        if typeof(value) == "number" then
-            highest = math.max(highest,value)
-        end
-
-    end
-
-    for _,v in ipairs(obj:GetDescendants()) do
-
-        if v:IsA("NumberValue") then
-
-            local n = string.lower(v.Name)
-
-            if string.find(n,"value",1,true)
-            or string.find(n,"income",1,true)
-            or string.find(n,"generation",1,true)
-            or string.find(n,"second",1,true) then
-
-                highest =
-                    math.max(highest,v.Value)
-
-            end
-        end
-    end
-
-    return highest
-end
-
---========================================================--
--- GET PART
---========================================================--
-
-local function GetObjectPart(obj)
-
-    if obj:IsA("BasePart") then
-        return obj
-    end
-
-    if obj:IsA("Model") then
-
-        return obj.PrimaryPart
-            or obj:FindFirstChildWhichIsA(
-                "BasePart",
-                true
-            )
-    end
-
-    return obj:FindFirstChildWhichIsA(
-        "BasePart",
-        true
-    )
-end
-
---========================================================--
--- GET EGGS
---========================================================--
-
-local function GetAllEggs()
-
-    local result = {}
-    local already = {}
-
-    for _,obj in ipairs(workspace:GetDescendants()) do
-
-        if IsRealEgg(obj) then
-
-            local part = GetObjectPart(obj)
-
-            if part
-            and not already[obj] then
-
-                already[obj] = true
-
-                table.insert(result,{
-                    Object = obj,
-                    Part = part,
-                    Name = GetEggName(obj),
-                    Value = GetEggValue(obj)
-                })
-
-            end
-        end
-    end
-
-    return result
-end
-
---========================================================--
--- BEST EGG
---========================================================--
-
-local function GetBestEgg()
-
-    local best
-    local highest = -math.huge
-
-    for _,egg in ipairs(GetAllEggs()) do
-
-        if egg.Value >= Config.MinValue then
-
-            if egg.Value > highest then
-
-                highest = egg.Value
-                best = egg
-
-            end
-        end
-    end
-
-    return best
-end
-
---========================================================--
--- TARGET
---========================================================--
-
-local function GetTargetEgg()
-
-    -- Best Egg activado
-    if Config.BestEgg then
-        return GetBestEgg()
-    end
-
-    local eggs = GetAllEggs()
-
-    -- Si no hay Best Egg,
-    -- elegir el huevo más cercano.
-    local nearest
-    local distance = math.huge
-
-    for _,egg in ipairs(eggs) do
-
-        if egg.Part and Root then
-
-            local d =
-                (Root.Position -
-                egg.Part.Position).Magnitude
-
-            if d < distance then
-
-                distance = d
-                nearest = egg
-
-            end
-        end
-    end
-
-    return nearest
-end
-
---========================================================--
--- MOVE TO EGG
---========================================================--
-
-local function MoveToEgg(egg)
-
-    if not egg or not egg.Part then
-        return false
-    end
-
-    if not Root then
-        return false
-    end
-
-    Root.CFrame =
-        egg.Part.CFrame *
-        CFrame.new(0,3,0)
-
-    return true
-end
-
---========================================================--
--- SAFE ZONE
---========================================================--
-
-local SafeNames = {
-    "SafeZone",
-    "Safe Zone",
-    "SafeArea",
-    "Safe Area"
-}
-
-local function FindSafeZone()
-
-    for _,obj in ipairs(workspace:GetDescendants()) do
-
-        if obj:IsA("BasePart") then
-
-            local name =
-                string.lower(obj.Name)
-
-            for _,safe in ipairs(SafeNames) do
-
-                if name ==
-                    string.lower(safe) then
-
-                    return obj
-
-                end
-            end
-        end
-    end
-
-    return nil
-end
-
-local function ReturnSafe()
-
-    local safe = FindSafeZone()
-
-    if not safe then
-
-        Notify("Safe Zone no encontrada")
-        return
-
-    end
-
-    if Root then
-
-        Root.CFrame =
-            safe.CFrame *
-            CFrame.new(0,4,0)
-
-    end
-end
-
---========================================================--
--- PROMPT
---========================================================--
-
-local function GetEggPrompt(egg)
-
-    if not egg or not egg.Object then
-        return nil
-    end
-
-    -- Solo buscamos prompts DENTRO del huevo.
-    for _,v in ipairs(
-        egg.Object:GetDescendants()
-    ) do
-
-        if v:IsA("ProximityPrompt") then
-            return v
-        end
-
-    end
-
-    return nil
-end
-
-local function InteractEgg(egg)
-
-    local prompt = GetEggPrompt(egg)
-
-    if not prompt then
-        return false
-    end
-
-    if fireproximityprompt then
-
-        pcall(function()
-            fireproximityprompt(prompt)
-        end)
-
+    
+    -- HUEVO REAL
+    if name:find("egg") or name:find("huevo") or name:find("chilli") or name:find("slot") or promptText:find("robar") or promptText:find("steal") or promptText:find("huevo") or promptText:find("egg") then
         return true
-
     end
-
+    
     return false
 end
 
---========================================================--
--- AUTO STEAL
---========================================================--
+-- MOVIMIENTO SEGURO (MUEVE AL JUGADOR CON TWEEN PARA EVITAR ANTI-CHEAT)
+local function SafeTeleport(targetCFrame)
+    local char = LocalPlayer.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+    
+    local hrp = char.HumanoidRootPart
+    local dist = (hrp.Position - targetCFrame.Position).Magnitude
+    local time = math.clamp(dist / 120, 0.2, 1.8) -- Velocidad regulada
+    
+    local tweenInfo = TweenInfo.new(time, Enum.EasingStyle.Linear)
+    local tween = TweenService:Create(hrp, tweenInfo, {CFrame = targetCFrame})
+    tween:Play()
+    return tween
+end
 
-task.spawn(function()
+local espEnabled = false
+local autoRobarEnabled = false
+local speedEnabled = false
 
-    while task.wait(0.25) do
-
-        if Config.AutoSteal then
-
-            local egg = GetTargetEgg()
-
-            if egg then
-
-                MoveToEgg(egg)
-
-                task.wait(0.12)
-
-                InteractEgg(egg)
-
-                if Config.AutoReturn then
-
-                    task.wait(0.25)
-                    ReturnSafe()
-
+-- 1. ESP DE HUEVOS REALE
+CreateButton("👁️ Activar ESP Huevos Reales", 1, function()
+    espEnabled = not espEnabled
+    if espEnabled then
+        SendNotification("KUALE HUB", "ESP Activado", 2)
+        task.spawn(function()
+            while espEnabled do
+                for _, prompt in pairs(Workspace:GetDescendants()) do
+                    if IsValidEggPrompt(prompt) then
+                        local parent = prompt.Parent
+                        if not parent:FindFirstChild("KualeRealESP") then
+                            local bill = Instance.new("BillboardGui")
+                            bill.Name = "KualeRealESP"
+                            bill.Size = UDim2.new(0, 150, 0, 50)
+                            bill.StudsOffset = Vector3.new(0, 3, 0)
+                            bill.AlwaysOnTop = true
+                            bill.Parent = parent
+                            
+                            local txt = Instance.new("TextLabel")
+                            txt.Size = UDim2.new(1, 0, 1, 0)
+                            txt.BackgroundTransparency = 1
+                            txt.Font = Enum.Font.GothamBold
+                            txt.TextSize = 12
+                            txt.TextColor3 = Color3.fromRGB(0, 255, 128)
+                            txt.TextStrokeTransparency = 0
+                            
+                            local dispName = (prompt.ObjectText ~= "" and prompt.ObjectText) or parent.Name
+                            txt.Text = "🥚 " .. dispName
+                            txt.Parent = bill
+                        end
+                    end
                 end
+                task.wait(2.5)
             end
-        end
-    end
-
-end)
-
---========================================================--
--- INSTANT STEAL
---========================================================--
-
-task.spawn(function()
-
-    while task.wait(0.08) do
-
-        if Config.InstantSteal then
-
-            local egg = GetTargetEgg()
-
-            if egg then
-
-                MoveToEgg(egg)
-
-                task.wait(0.04)
-
-                InteractEgg(egg)
-
-            end
-        end
-    end
-
-end)
-
---========================================================--
--- EGG ESP
---========================================================--
-
-local EggESP = {}
-
-local function ClearEggESP()
-
-    for _,obj in ipairs(EggESP) do
-
-        pcall(function()
-            obj:Destroy()
         end)
-
+    else
+        SendNotification("KUALE HUB", "ESP Desactivado", 2)
+        for _, v in pairs(Workspace:GetDescendants()) do
+            if v:FindFirstChild("KualeRealESP") then v.KualeRealESP:Destroy() end
+        end
     end
+end)
 
-    EggESP = {}
-
-end
-
-local function MakeEggESP(egg)
-
-    if not egg.Part then
-        return
+-- 2. TELEPORT SEGURO A HUEVO REAL
+CreateButton("⚡ Teleport Seguro a Huevo", 2, function()
+    local targetPrompt = nil
+    for _, prompt in pairs(Workspace:GetDescendants()) do
+        if IsValidEggPrompt(prompt) then
+            targetPrompt = prompt
+            break
+        end
     end
+    
+    if targetPrompt and targetPrompt.Parent then
+        local parent = targetPrompt.Parent
+        local pos = parent:IsA("Model") and parent:GetPivot().Position or parent.Position
+        local tw = SafeTeleport(CFrame.new(pos) + Vector3.new(0, 3, 0))
+        SendNotification("KUALE HUB", "Viajando al huevo...", 2)
+        
+        if tw then
+            tw.Completed:Connect(function()
+                fireproximityprompt(targetPrompt)
+                SendNotification("KUALE HUB", "¡Huevo recogido!", 2)
+            end)
+        end
+    else
+        SendNotification("KUALE HUB", "No se encontró un huevo válido.", 2)
+    end
+end)
 
-    local billboard =
-        Instance.new("BillboardGui")
-
-    billboard.Name =
-        "KUALE_EGG_DISPLAY"
-
-    billboard.Adornee =
-        egg.Part
-
-    billboard.Size =
-        UDim2.new(0,220,0,45)
-
-    billboard.StudsOffset =
-        Vector3.new(0,3,0)
-
-    billboard.AlwaysOnTop = true
-
-    billboard.Parent =
-        egg.Part
-
-    local label =
-        Instance.new("TextLabel")
-
-    label.Size =
-        UDim2.fromScale(1,1)
-
-    label.BackgroundTransparency = 1
-
-    label.Text =
-        egg.Name ..
-        "  |  $" ..
-        tostring(egg.Value)
-
-    label.TextColor3 =
-        Color3.fromRGB(255,255,255)
-
-    label.TextStrokeTransparency = 0
-
-    label.TextScaled = true
-
-    label.Font =
-        Enum.Font.GothamBold
-
-    label.Parent = billboard
-
-    table.insert(EggESP,billboard)
-
-end
-
-task.spawn(function()
-
-    while task.wait(1) do
-
-        if Config.EggESP then
-
-            ClearEggESP()
-
-            for _,egg in ipairs(
-                GetAllEggs()
-            ) do
-
-                MakeEggESP(egg)
-
+-- 3. AUTO-ROBO CONTINUO
+CreateButton("🔄 Auto-Robar Huevos Cercanos", 3, function()
+    autoRobarEnabled = not autoRobarEnabled
+    if autoRobarEnabled then
+        SendNotification("KUALE HUB", "Auto-Robo Activado", 2)
+        task.spawn(function()
+            while autoRobarEnabled do
+                if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                    local myPos = LocalPlayer.Character.HumanoidRootPart.Position
+                    for _, prompt in pairs(Workspace:GetDescendants()) do
+                        if IsValidEggPrompt(prompt) then
+                            local parent = prompt.Parent
+                            local pos = parent:IsA("Model") and parent:GetPivot().Position or parent.Position
+                            if (pos - myPos).Magnitude < 18 then
+                                fireproximityprompt(prompt)
+                            end
+                        end
+                    end
+                end
+                task.wait(0.5)
             end
+        end)
+    else
+        SendNotification("KUALE HUB", "Auto-Robo Desactivado", 2)
+    end
+end)
 
+-- 4. TELEPORT A ZONA SEGURA (BASE)
+CreateButton("🏠 Teleport Seguro a Base", 4, function()
+    local spawnPoint = Workspace:FindFirstChildWhichIsA("SpawnLocation", true)
+    if spawnPoint then
+        SafeTeleport(spawnPoint.CFrame + Vector3.new(0, 4, 0))
+    else
+        SafeTeleport(CFrame.new(0, 5, 0))
+    end
+    SendNotification("KUALE HUB", "Regresando a la base...", 2)
+end)
+
+-- 5. VELOCIDAD DE CAMINATA AUMENTADA
+CreateButton("⚡ Modificar Velocidad (WalkSpeed)", 5, function()
+    speedEnabled = not speedEnabled
+    local char = LocalPlayer.Character
+    if char and char:FindFirstChild("Humanoid") then
+        if speedEnabled then
+            char.Humanoid.WalkSpeed = 45
+            SendNotification("KUALE HUB", "Velocidad Aumentada", 2)
         else
-
-            ClearEggESP()
-
+            char.Humanoid.WalkSpeed = 16
+            SendNotification("KUALE HUB", "Velocidad Normal", 2)
         end
     end
-
 end)
 
---========================================================--
--- SPEED
---========================================================--
-
-task.spawn(function()
-
-    while task.wait(0.15) do
-
-        if Humanoid then
-
-            if Config.Speed then
-                Humanoid.WalkSpeed =
-                    Config.SpeedValue
-            else
-                Humanoid.WalkSpeed = 16
-            end
-
-        end
+-- 6. SPAWNEAR HUEVO DIVINO (CUSTOM VISUAL)
+CreateButton("✨ Spawnear Huevo Divino (Custom)", 6, function()
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local hrp = LocalPlayer.Character.HumanoidRootPart
+        local pos = hrp.Position + (hrp.CFrame.LookVector * 6)
+        
+        local fakeEgg = Instance.new("Part")
+        fakeEgg.Name = "HuevoDivino_Custom"
+        fakeEgg.Size = Vector3.new(4, 5, 4)
+        fakeEgg.Position = pos
+        fakeEgg.Color = Color3.fromRGB(255, 0, 128)
+        fakeEgg.Material = Enum.Material.Neon
+        fakeEgg.Anchored = false
+        fakeEgg.Parent = Workspace
+        
+        local bill = Instance.new("BillboardGui")
+        bill.Size = UDim2.new(0, 160, 0, 70)
+        bill.StudsOffset = Vector3.new(0, 4, 0)
+        bill.AlwaysOnTop = true
+        bill.Parent = fakeEgg
+        
+        local txt = Instance.new("TextLabel")
+        txt.Size = UDim2.new(1, 0, 1, 0)
+        txt.BackgroundTransparency = 1
+        txt.Font = Enum.Font.GothamBold
+        txt.TextSize = 14
+        txt.TextColor3 = Color3.fromRGB(0, 255, 255)
+        txt.TextStrokeTransparency = 0
+        txt.Text = "🌟 HUEVO DIVINO 🌟\n💎 Valor: 950 Billones"
+        txt.Parent = bill
+        
+        SendNotification("KUALE HUB", "Huevo Divino generado.", 3)
     end
-
 end)
 
---========================================================--
--- HIGH JUMP
---========================================================--
-
-task.spawn(function()
-
-    while task.wait(0.15) do
-
-        if Humanoid then
-
-            if Config.HighJump then
-                Humanoid.JumpPower = 100
-            else
-                Humanoid.JumpPower = 50
-            end
-
-        end
-    end
-
-end)
-
---========================================================--
--- INFINITE JUMP
---========================================================--
-
-UIS.JumpRequest:Connect(function()
-
-    if Config.InfiniteJump
-    and Humanoid then
-
-        Humanoid:ChangeState(
-            Enum.HumanoidStateType.Jumping
-        )
-
-    end
-
-end)
-
---========================================================--
--- ANTI AFK
---========================================================--
-
-LP.Idled:Connect(function()
-
-    if Config.AntiAFK then
-
-        VirtualUser:CaptureController()
-
-        VirtualUser:ClickButton2(
-            Vector2.new()
-        )
-
-    end
-
-end)
-
---========================================================--
--- GUI
---========================================================--
-
-local Gui =
-    Instance.new("ScreenGui")
-
-Gui.Name = "KUALE_HUB"
-
-Gui.ResetOnSpawn = false
-
-Gui.ZIndexBehavior =
-    Enum.ZIndexBehavior.Sibling
-
-Gui.Parent = PlayerGui
-
---========================================================--
--- MAIN
---========================================================--
-
-local Main =
-    Instance.new("Frame")
-
-Main.Size =
-    UDim2.new(0,650,0,430)
-
-Main.Position =
-    UDim2.new(0.5,-325,0.5,-215)
-
-Main.BackgroundColor3 =
-    Color3.fromRGB(12,12,14)
-
-Main.BorderSizePixel = 0
-
-Main.Parent = Gui
-
-Instance.new("UICorner",Main).CornerRadius =
-    UDim.new(0,12)
-
---========================================================--
--- TOP
---========================================================--
-
-local Top =
-    Instance.new("Frame")
-
-Top.Size =
-    UDim2.new(1,0,0,55)
-
-Top.BackgroundColor3 =
-    Color3.fromRGB(19,19,23)
-
-Top.BorderSizePixel = 0
-
-Top.Parent = Main
-
-Instance.new("UICorner",Top).CornerRadius =
-    UDim.new(0,12)
-
-local Title =
-    Instance.new("TextLabel")
-
-Title.Size =
-    UDim2.new(0,300,1,0)
-
-Title.Position =
-    UDim2.new(0,18,0,0)
-
-Title.BackgroundTransparency = 1
-
-Title.Text = "KUALE HUB"
-
-Title.TextColor3 =
-    Color3.fromRGB(255,255,255)
-
-Title.TextSize = 23
-
-Title.Font =
-    Enum.Font.GothamBold
-
-Title.TextXAlignment =
-    Enum.TextXAlignment.Left
-
-Title.Parent = Top
-
---========================================================--
--- CLOSE X
---========================================================--
-
-local Close =
-    Instance.new("TextButton")
-
-Close.Size =
-    UDim2.new(0,38,0,38)
-
-Close.Position =
-    UDim2.new(1,-47,0,8)
-
-Close.BackgroundColor3 =
-    Color3.fromRGB(40,40,45)
-
-Close.BorderSizePixel = 0
-
-Close.Text = "X"
-
-Close.TextColor3 =
-    Color3.fromRGB(255,255,255)
-
-Close.TextSize = 16
-
-Close.Font =
-    Enum.Font.GothamBold
-
-Close.Parent = Top
-
-Instance.new("UICorner",Close).CornerRadius =
-    UDim.new(0,8)
-
---========================================================--
--- SIDEBAR
---========================================================--
-
-local Sidebar =
-    Instance.new("Frame")
-
-Sidebar.Size =
-    UDim2.new(0,145,1,-65)
-
-Sidebar.Position =
-    UDim2.new(0,8,0,62)
-
-Sidebar.BackgroundColor3 =
-    Color3.fromRGB(17,17,20)
-
-Sidebar.BorderSizePixel = 0
-
-Sidebar.Parent = Main
-
-Instance.new("UICorner",Sidebar).CornerRadius =
-    UDim.new(0,8)
-
---========================================================--
--- CONTENT
---========================================================--
-
-local Content =
-    Instance.new("ScrollingFrame")
-
-Content.Size =
-    UDim2.new(1,-165,1,-70)
-
-Content.Position =
-    UDim2.new(0,158,0,62)
-
-Content.BackgroundColor3 =
-    Color3.fromRGB(17,17,20)
-
-Content.BorderSizePixel = 0
-
-Content.ScrollBarThickness = 4
-
-Content.Parent = Main
-
-Instance.new("UICorner",Content).CornerRadius =
-    UDim.new(0,8)
-
-local Layout =
-    Instance.new("UIListLayout")
-
-Layout.Padding =
-    UDim.new(0,7)
-
-Layout.SortOrder =
-    Enum.SortOrder.LayoutOrder
-
-Layout.Parent = Content
-
-Layout:GetPropertyChangedSignal(
-    "AbsoluteContentSize"
-):Connect(function()
-
-    Content.CanvasSize =
-        UDim2.new(
-            0,
-            0,
-            0,
-            Layout.AbsoluteContentSize.Y + 20
-        )
-
-end)
-
-local Padding =
-    Instance.new("UIPadding")
-
-Padding.PaddingTop =
-    UDim.new(0,10)
-
-Padding.PaddingBottom =
-    UDim.new(0,10)
-
-Padding.PaddingLeft =
-    UDim.new(0,10)
-
-Padding.PaddingRight =
-    UDim.new(0,10)
-
-Padding.Parent = Content
-
---========================================================--
--- GUI HELPERS
---========================================================--
-
-local function ClearContent()
-
-    for _,obj in ipairs(
-        Content:GetChildren()
-    ) do
-
-        if obj ~= Layout
-        and obj ~= Padding then
-
-            obj:Destroy()
-
-        end
-    end
-
-end
-
-local function Header(text)
-
-    local label =
-        Instance.new("TextLabel")
-
-    label.Size =
-        UDim2.new(1,0,0,30)
-
-    label.BackgroundTransparency = 1
-
-    label.Text = text
-
-    label.TextColor3 =
-        Color3.fromRGB(255,65,65)
-
-    label.TextSize = 14
-
-    label.Font =
-        Enum.Font.GothamBold
-
-    label.TextXAlignment =
-        Enum.TextXAlignment.Left
-
-    label.Parent = Content
-
-end
-
-local function Toggle(text,key)
-
-    local button =
-        Instance.new("TextButton")
-
-    button.Size =
-        UDim2.new(1,0,0,40)
-
-    button.BackgroundColor3 =
-        Color3.fromRGB(30,30,35)
-
-    button.BorderSizePixel = 0
-
-    button.TextSize = 13
-
-    button.Font =
-        Enum.Font.GothamMedium
-
-    button.Parent = Content
-
-    Instance.new("UICorner",button).CornerRadius =
-        UDim.new(0,7)
-
-    local function Update()
-
-        if Config[key] then
-
-            button.Text =
-                text .. "    [ ON ]"
-
-            button.TextColor3 =
-                Color3.fromRGB(255,65,65)
-
-        else
-
-            button.Text =
-                text .. "    [ OFF ]"
-
-            button.TextColor3 =
-                Color3.fromRGB(255,255,255)
-
-        end
-
-    end
-
-    button.MouseButton1Click:Connect(function()
-
-        Config[key] =
-            not Config[key]
-
-        Update()
-
-    end)
-
-    Update()
-
-end
-
-local function Button(text,callback)
-
-    local button =
-        Instance.new("TextButton")
-
-    button.Size =
-        UDim2.new(1,0,0,40)
-
-    button.BackgroundColor3 =
-        Color3.fromRGB(30,30,35)
-
-    button.BorderSizePixel = 0
-
-    button.Text = text
-
-    button.TextColor3 =
-        Color3.fromRGB(255,255,255)
-
-    button.TextSize = 13
-
-    button.Font =
-        Enum.Font.GothamMedium
-
-    button.Parent = Content
-
-    Instance.new("UICorner",button).CornerRadius =
-        UDim.new(0,7)
-
-    button.MouseButton1Click:Connect(callback)
-
-end
-
---========================================================--
--- TABS
---========================================================--
-
-local function FarmTab()
-
-    ClearContent()
-
-    Header("AUTO STEAL")
-
-    Toggle("Auto Steal","AutoSteal")
-    Toggle("Instant Steal","InstantSteal")
-    Toggle("Best Egg","BestEgg")
-    Toggle("Auto Return","AutoReturn")
-
-    Header("AUTOMATION")
-
-    Toggle("Auto Place","AutoPlace")
-    Toggle("Auto Hatch","AutoHatch")
-    Toggle("Auto Fuse","AutoFuse")
-    Toggle("Auto Sell","AutoSell")
-
-    Header("EGG")
-
-    Button("Find Best Egg",function()
-
-        local egg = GetBestEgg()
-
-        if egg then
-
-            Notify(
-                egg.Name ..
-                " | $" ..
-                tostring(egg.Value)
-            )
-
-            MoveToEgg(egg)
-
-        else
-
-            Notify("No se encontró un huevo")
-
-        end
-
-    end)
-
-end
-
-local function PlayerTab()
-
-    ClearContent()
-
-    Header("MOVEMENT")
-
-    Toggle("Speed","Speed")
-    Toggle("High Jump","HighJump")
-    Toggle("Infinite Jump","InfiniteJump")
-
-    Header("PROTECTION")
-
-    Toggle("Anti Guard","AntiGuard")
-    Toggle("Auto Return","AutoReturn")
-
-    Header("ESP")
-
-    Toggle("Egg ESP","EggESP")
-    Toggle("Player ESP","PlayerESP")
-
-end
-
-local function ProgressTab()
-
-    ClearContent()
-
-    Header("PROGRESS")
-
-    Toggle(
-        "Auto Treadmill",
-        "AutoTreadmill"
-    )
-
-    Toggle(
-        "Auto Upgrade",
-        "AutoUpgrade"
-    )
-
-    Toggle(
-        "Auto Rewards",
-        "AutoRewards"
-    )
-
-    Header("TELEPORT")
-
-    Button(
-        "Return Safe Zone",
-        ReturnSafe
-    )
-
-    Button(
-        "Teleport Best Egg",
-        function()
-
-            local egg =
-                GetBestEgg()
-
-            if egg then
-                MoveToEgg(egg)
-            end
-
-        end
-    )
-
-end
-
-local function MiscTab()
-
-    ClearContent()
-
-    Header("MISC")
-
-    Toggle(
-        "FPS Boost",
-        "FPSBoost"
-    )
-
-    Toggle(
-        "Anti AFK",
-        "AntiAFK"
-    )
-
-    Button(
-        "Close KUALE",
-        function()
-            Main.Visible = false
-        end
-    )
-
-end
-
-local Tabs = {}
-
-local function AddTab(name,func)
-
-    local button =
-        Instance.new("TextButton")
-
-    button.Size =
-        UDim2.new(1,-10,0,38)
-
-    button.Position =
-        UDim2.new(
-            0,
-            5,
-            0,
-            8 + (#Tabs * 43)
-        )
-
-    button.BackgroundColor3 =
-        Color3.fromRGB(27,27,31)
-
-    button.BorderSizePixel = 0
-
-    button.Text = name
-
-    button.TextColor3 =
-        Color3.fromRGB(255,255,255)
-
-    button.TextSize = 12
-
-    button.Font =
-        Enum.Font.GothamMedium
-
-    button.Parent = Sidebar
-
-    Instance.new("UICorner",button).CornerRadius =
-        UDim.new(0,6)
-
-    button.MouseButton1Click:Connect(function()
-
-        for _,tab in ipairs(Tabs) do
-
-            tab.BackgroundColor3 =
-                Color3.fromRGB(27,27,31)
-
-        end
-
-        button.BackgroundColor3 =
-            Color3.fromRGB(180,35,35)
-
-        func()
-
-    end)
-
-    table.insert(Tabs,button)
-
-end
-
-AddTab("Farm",FarmTab)
-AddTab("Player",PlayerTab)
-AddTab("Progress",ProgressTab)
-AddTab("Misc",MiscTab)
-
-FarmTab()
-
---========================================================--
--- OPEN BUTTON
---========================================================--
-
-local Open =
-    Instance.new("TextButton")
-
-Open.Size =
-    UDim2.new(0,58,0,58)
-
-Open.Position =
-    UDim2.new(0,15,0.5,-29)
-
-Open.BackgroundColor3 =
-    Color3.fromRGB(20,20,24)
-
-Open.BorderSizePixel = 0
-
-Open.Text = "K"
-
-Open.TextColor3 =
-    Color3.fromRGB(255,55,55)
-
-Open.TextSize = 24
-
-Open.Font =
-    Enum.Font.GothamBold
-
-Open.Visible = false
-
-Open.Parent = Gui
-
-Instance.new("UICorner",Open).CornerRadius =
-    UDim.new(1,0)
-
-local OpenStroke =
-    Instance.new("UIStroke")
-
-OpenStroke.Color =
-    Color3.fromRGB(255,55,55)
-
-OpenStroke.Thickness = 2
-
-OpenStroke.Parent = Open
-
-Close.MouseButton1Click:Connect(function()
-
-    Main.Visible = false
-    Open.Visible = true
-
-end)
-
-Open.MouseButton1Click:Connect(function()
-
-    Main.Visible = true
-    Open.Visible = false
-
-end)
-
---========================================================--
--- DRAG MAIN
---========================================================--
-
-local function MakeDraggable(frame,handle)
-
-    local dragging = false
-    local start
-    local startPos
-
-    handle.InputBegan:Connect(function(input)
-
-        if input.UserInputType ==
-            Enum.UserInputType.MouseButton1
-            or input.UserInputType ==
-            Enum.UserInputType.Touch then
-
-            dragging = true
-            start = input.Position
-            startPos = frame.Position
-
-        end
-
-    end)
-
-    UIS.InputChanged:Connect(function(input)
-
-        if not dragging then
-            return
-        end
-
-        if input.UserInputType ==
-            Enum.UserInputType.MouseMovement
-            or input.UserInputType ==
-            Enum.UserInputType.Touch then
-
-            local delta =
-                input.Position - start
-
-            frame.Position =
-                UDim2.new(
-                    startPos.X.Scale,
-                    startPos.X.Offset + delta.X,
-                    startPos.Y.Scale,
-                    startPos.Y.Offset + delta.Y
-                )
-
-        end
-
-    end)
-
-    UIS.InputEnded:Connect(function(input)
-
-        if input.UserInputType ==
-            Enum.UserInputType.MouseButton1
-            or input.UserInputType ==
-            Enum.UserInputType.Touch then
-
-            dragging = false
-
-        end
-
-    end)
-
-end
-
-MakeDraggable(Main,Top)
-
---========================================================--
--- FLOATING BUTTONS
---========================================================--
-
-local Float =
-    Instance.new("Frame")
-
-Float.Name =
-    "KUALE_FLOAT"
-
-Float.Size =
-    UDim2.new(0,80,0,350)
-
-Float.Position =
-    UDim2.new(1,-95,0.5,-175)
-
-Float.BackgroundTransparency = 1
-
-Float.Parent = Gui
-
---========================================================--
--- DRAGGABLE FLOAT GROUP
---========================================================--
-
-MakeDraggable(Float,Float)
-
-local function FloatButton(
-    text,
-    key,
-    y,
-    callback
-)
-
-    local button =
-        Instance.new("TextButton")
-
-    button.Size =
-        UDim2.new(0,75,0,45)
-
-    button.Position =
-        UDim2.new(0,0,0,y)
-
-    button.BackgroundColor3 =
-        Color3.fromRGB(255,255,255)
-
-    button.BorderSizePixel = 0
-
-    button.Text = text
-
-    button.TextColor3 =
-        Color3.fromRGB(0,0,0)
-
-    button.TextSize = 11
-
-    button.Font =
-        Enum.Font.GothamBold
-
-    button.Parent = Float
-
-    Instance.new("UICorner",button).CornerRadius =
-        UDim.new(0,9)
-
-    local function Update()
-
-        if Config[key] then
-
-            button.BackgroundColor3 =
-                Color3.fromRGB(220,40,40)
-
-            button.TextColor3 =
-                Color3.fromRGB(255,255,255)
-
-        else
-
-            button.BackgroundColor3 =
-                Color3.fromRGB(255,255,255)
-
-            button.TextColor3 =
-                Color3.fromRGB(0,0,0)
-
-        end
-
-    end
-
-    button.MouseButton1Click:Connect(function()
-
-        Config[key] =
-            not Config[key]
-
-        Update()
-
-        if callback then
-            callback(Config[key])
-        end
-
-    end)
-
-    Update()
-
-    return button
-
-end
-
-FloatButton(
-    "STEAL",
-    "AutoSteal",
-    0
-)
-
-FloatButton(
-    "INSTA",
-    "InstantSteal",
-    50
-)
-
-FloatButton(
-    "BEST",
-    "BestEgg",
-    100
-)
-
-FloatButton(
-    "SAFE",
-    "AutoReturn",
-    150
-)
-
-FloatButton(
-    "GUARD",
-    "AntiGuard",
-    200
-)
-
-FloatButton(
-    "JUMP",
-    "HighJump",
-    250
-)
-
---========================================================--
--- FIN
---========================================================--
-
-Notify("KUALE HUB cargado")
+SendNotification("KUALE HUB", "¡Cargado sin errores de Baneo!", 3)
