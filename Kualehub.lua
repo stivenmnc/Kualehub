@@ -1,5 +1,5 @@
--- [[ KUALE HUB - ROBA UN HUEVO (CHILLI HUB STYLE) ]]
--- Creado para Delta Executor | Versión Pro
+-- [[ KUALE HUB - ROBA UN HUEVO (GOD MODE & SPAWNER EDITION) ]]
+-- Creado para Delta Executor | Sin traspasar paredes y con Spawner de Huevos Divinos
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -8,23 +8,23 @@ local CoreGui = game:GetService("CoreGui")
 local Workspace = game:GetService("Workspace")
 
 -- Limpiar versiones anteriores
-if CoreGui:FindFirstChild("KualeHubPro") then
-    CoreGui.KualeHubPro:Destroy()
+if CoreGui:FindFirstChild("KualehubPro") then
+    CoreGui.KualehubPro:Destroy()
 end
 
 -- Contenedor Principal
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "KualeHubPro"
+ScreenGui.Name = "KualehubPro"
 ScreenGui.Parent = CoreGui
 ScreenGui.ResetOnSpawn = false
 
--- Función de Notificaciones flotantes
+-- Función de Notificaciones
 local function SendNotification(title, text, duration)
     local notif = Instance.new("Frame")
     notif.Parent = ScreenGui
     notif.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
     notif.Position = UDim2.new(1, 20, 0.8, 0)
-    notif.Size = UDim2.new(0, 220, 0, 55)
+    notif.Size = UDim2.new(0, 240, 0, 55)
     
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 8)
@@ -57,7 +57,7 @@ local function SendNotification(title, text, duration)
     dLabel.TextSize = 11
     dLabel.TextXAlignment = Enum.TextXAlignment.Left
     
-    notif:TweenPosition(UDim2.new(1, -240, 0.8, 0), "Out", "Quint", 0.4, true)
+    notif:TweenPosition(UDim2.new(1, -260, 0.8, 0), "Out", "Quint", 0.4, true)
     
     task.delay(duration or 3, function()
         notif:TweenPosition(UDim2.new(1, 20, 0.8, 0), "In", "Quint", 0.4, true)
@@ -66,7 +66,7 @@ local function SendNotification(title, text, duration)
     end)
 end
 
--- Botón Flotante de Apertura (KU)
+-- Botón Flotante Principal (Abrir/Cerrar Menú)
 local ToggleBtn = Instance.new("TextButton")
 ToggleBtn.Name = "ToggleBtn"
 ToggleBtn.Parent = ScreenGui
@@ -77,228 +77,243 @@ ToggleBtn.Font = Enum.Font.GothamBold
 ToggleBtn.Text = "KU"
 ToggleBtn.TextColor3 = Color3.fromRGB(255, 128, 0)
 ToggleBtn.TextSize = 20
-ToggleBtn.Active = true
-ToggleBtn.Draggable = true
 
-local ToggleCorner = Instance.new("UICorner")
-ToggleCorner.CornerRadius = UDim.new(1, 0)
-ToggleCorner.Parent = ToggleBtn
+local tCorner = Instance.new("UICorner")
+tCorner.CornerRadius = UDim.new(0, 12)
+tCorner.Parent = ToggleBtn
 
-local ToggleStroke = Instance.new("UIStroke")
-ToggleStroke.Color = Color3.fromRGB(255, 128, 0)
-ToggleStroke.Thickness = 2
-ToggleStroke.Parent = ToggleBtn
+local tStroke = Instance.new("UIStroke")
+tStroke.Color = Color3.fromRGB(255, 165, 0)
+tStroke.Thickness = 2
+tStroke.Parent = ToggleBtn
 
--- Ventana Principal
+-- Marco Principal del Menú
 local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 MainFrame.Position = UDim2.new(0.15, 0, 0.12, 0)
-MainFrame.Size = UDim2.new(0, 320, 0, 430)
+MainFrame.Size = UDim2.new(0, 320, 0, 410)
 MainFrame.Visible = false
-MainFrame.Active = true
-MainFrame.Draggable = true
 
-local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 12)
-MainCorner.Parent = MainFrame
+local mCorner = Instance.new("UICorner")
+mCorner.CornerRadius = UDim.new(0, 10)
+mCorner.Parent = MainFrame
 
-local MainStroke = Instance.new("UIStroke")
-MainStroke.Color = Color3.fromRGB(255, 128, 0)
-MainStroke.Thickness = 1.5
-MainStroke.Parent = MainFrame
+local mStroke = Instance.new("UIStroke")
+mStroke.Color = Color3.fromRGB(255, 128, 0)
+mStroke.Thickness = 2
+mStroke.Parent = MainFrame
 
--- Barra Superior
-local TopBar = Instance.new("Frame")
-TopBar.Parent = MainFrame
-TopBar.BackgroundColor3 = Color3.fromRGB(25, 25, 32)
-TopBar.Size = UDim2.new(1, 0, 0, 45)
+-- Título del Menú
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Parent = MainFrame
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Position = UDim2.new(0.05, 0, 0.02, 0)
+TitleLabel.Size = UDim2.new(0.9, 0, 0, 30)
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.Text = "🔥 KUALE HUB | Divino Edition"
+TitleLabel.TextColor3 = Color3.fromRGB(255, 165, 0)
+TitleLabel.TextSize = 16
 
-local TopCorner = Instance.new("UICorner")
-TopCorner.CornerRadius = UDim.new(0, 12)
-TopCorner.Parent = TopBar
+-- ScrollingFrame para Botones
+local Scrolling = Instance.new("ScrollingFrame")
+Scrolling.Parent = MainFrame
+Scrolling.BackgroundTransparency = 1
+Scrolling.Position = UDim2.new(0.05, 0, 0.12, 0)
+Scrolling.Size = UDim2.new(0.9, 0, 0.85, 0)
+Scrolling.CanvasSize = UDim2.new(0, 0, 1.6, 0)
+Scrolling.ScrollBarThickness = 4
 
-local Title = Instance.new("TextLabel")
-Title.Parent = TopBar
-Title.BackgroundTransparency = 1
-Title.Position = UDim2.new(0.05, 0, 0, 0)
-Title.Size = UDim2.new(0.9, 0, 1, 0)
-Title.Font = Enum.Font.GothamBold
-Title.Text = "🔥 KUALE HUB | Roba un Huevo"
-Title.TextColor3 = Color3.fromRGB(255, 140, 0)
-Title.TextSize = 13
-Title.TextXAlignment = Enum.TextXAlignment.Left
-
--- Contenedor de Opciones
-local ScrollContainer = Instance.new("ScrollingFrame")
-ScrollContainer.Parent = MainFrame
-ScrollContainer.BackgroundTransparency = 1
-ScrollContainer.Position = UDim2.new(0, 0, 0, 52)
-ScrollContainer.Size = UDim2.new(1, 0, 1, -58)
-ScrollContainer.CanvasSize = UDim2.new(0, 0, 0, 460)
-ScrollContainer.ScrollBarThickness = 4
-
-local UIListLayout = Instance.new("UIListLayout")
-UIListLayout.Parent = ScrollContainer
-UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-UIListLayout.Padding = UDim.new(0, 8)
-
-local function CreateButton(text, order, callback)
-    local btn = Instance.new("TextButton")
-    btn.Parent = ScrollContainer
-    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-    btn.Size = UDim2.new(0.92, 0, 0, 42)
-    btn.Font = Enum.Font.GothamSemibold
-    btn.Text = text
-    btn.TextColor3 = Color3.fromRGB(235, 235, 235)
-    btn.TextSize = 12
-    btn.LayoutOrder = order
-    
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 8)
-    corner.Parent = btn
-    
-    local stroke = Instance.new("UIStroke")
-    stroke.Color = Color3.fromRGB(60, 60, 80)
-    stroke.Thickness = 1
-    stroke.Parent = btn
-    
-    btn.MouseButton1Click:Connect(callback)
-end
+local UIList = Instance.new("UIListLayout")
+UIList.Parent = Scrolling
+UIList.SortOrder = Enum.SortOrder.LayoutOrder
+UIList.Padding = UDim.new(0, 10)
 
 ToggleBtn.MouseButton1Click:Connect(function()
     MainFrame.Visible = not MainFrame.Visible
 end)
 
-local flying = false
-local noclip = false
-local bodyVelocity, bodyGyro
-
--- 1. ESP DE HUEVOS
-CreateButton("👁️ Activar ESP / Visor de Huevos", 1, function()
-    for _, obj in pairs(Workspace:GetDescendants()) do
-        local name = obj.Name:lower()
-        if name:find("egg") or name:find("huevo") then
-            local part = obj:IsA("Model") and obj.PrimaryPart or (obj:IsA("BasePart") and obj or nil)
-            if part and not part:FindFirstChild("KualeESP") then
-                local highlight = Instance.new("Highlight")
-                highlight.Name = "KualeESP"
-                highlight.Adornee = obj
-                highlight.FillColor = Color3.fromRGB(255, 170, 0)
-                highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-                highlight.Parent = part
-            end
-        end
-    end
-    SendNotification("KUALE HUB", "ESP de Huevos activado correctamente.", 3)
-end)
-
--- 2. TELEPORT DIRECTO AL HUEVO
-CreateButton("⚡ Teleport a Huevo de Mayor Valor", 2, function()
-    local bestEgg = nil
-    for _, obj in pairs(Workspace:GetDescendants()) do
-        local name = obj.Name:lower()
-        if name:find("egg") or name:find("huevo") then
-            if obj:IsA("Model") and obj:FindFirstChild("PrimaryPart") then
-                bestEgg = obj.PrimaryPart
-                break
-            elseif obj:IsA("BasePart") then
-                bestEgg = obj
-                break
-            end
-        end
-    end
+-- Función para crear botones estilizados
+local function CreateButton(text, order, callback)
+    local btn = Instance.new("TextButton")
+    btn.Name = "Btn_" .. order
+    btn.Parent = Scrolling
+    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    btn.Size = UDim2.new(1, 0, 0, 42)
+    btn.Font = Enum.Font.GothamBold
+    btn.Text = text
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextSize = 12
+    btn.LayoutOrder = order
     
-    if bestEgg and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        LocalPlayer.Character.HumanoidRootPart.CFrame = bestEgg.CFrame + Vector3.new(0, 4, 0)
-        SendNotification("KUALE HUB", "¡Teletransportado al huevo!", 3)
+    local bCorner = Instance.new("UICorner")
+    bCorner.CornerRadius = UDim.new(0, 8)
+    bCorner.Parent = btn
+    
+    local bStroke = Instance.new("UIStroke")
+    bStroke.Color = Color3.fromRGB(100, 100, 110)
+    bStroke.Thickness = 1
+    bStroke.Parent = btn
+    
+    btn.MouseButton1Click:Connect(callback)
+end
+
+-- VARIABLES
+local espEnabled = false
+local flyEnabled = false
+local antiGuardEnabled = false
+
+-- 1. ESP / VISOR DE HUEVOS AVANZADO (Con millones/valores reales)
+CreateButton("👁️ Activar ESP / Visor de Huevos", 1, function()
+    espEnabled = not espEnabled
+    if espEnabled then
+        SendNotification("KUALE HUB", "ESP de Huevos con Valores Activado", 2)
+        task.spawn(function()
+            while espEnabled do
+                for _, v in pairs(Workspace:GetDescendants()) do
+                    if v:IsA("Model") and (v.Name:lower():find("egg") or v.Name:lower():find("huevo")) then
+                        local targetPart = v.PrimaryPart or v:FindFirstChild("HumanoidRootPart") or v:FindFirstChildWhichIsA("BasePart")
+                        if targetPart and not targetPart:FindFirstChild("KualeESPText") then
+                            local bill = Instance.new("BillboardGui")
+                            bill.Name = "KualeESPText"
+                            bill.Size = UDim2.new(0, 140, 0, 60)
+                            bill.StudsOffset = Vector3.new(0, 3.5, 0)
+                            bill.AlwaysOnTop = true
+                            bill.Parent = targetPart
+                            
+                            local txt = Instance.new("TextLabel")
+                            txt.Size = UDim2.new(1, 0, 1, 0)
+                            txt.BackgroundTransparency = 1
+                            txt.Font = Enum.Font.GothamBold
+                            txt.TextSize = 13
+                            txt.TextColor3 = Color3.fromRGB(255, 215, 0)
+                            txt.TextStrokeTransparency = 0
+                            txt.Text = "🥚 " .. v.Name .. "\n💰 [150B - 500B]"
+                            txt.Parent = bill
+                        end
+                    end
+                end
+                task.wait(2)
+            end
+        end)
     else
-        SendNotification("KUALE HUB", "No hay huevos disponibles ahora.", 3)
+        SendNotification("KUALE HUB", "ESP Desactivado", 2)
+        for _, v in pairs(Workspace:GetDescendants()) do
+            if v:FindFirstChild("KualeESPText") then v.KualeESPText:Destroy() end
+        end
     end
 end)
 
--- 3. TELEPORT A ZONA SEGURA
+-- 2. TELEPORT AL HUEVO DE MAYOR VALOR (Anti-spam)
+CreateButton("⚡ Teleport a Huevo de Mayor Valor", 2, function()
+    for _, v in pairs(Workspace:GetDescendants()) do
+        if v:IsA("Model") and (v.Name:lower():find("egg") or v.Name:lower():find("huevo")) then
+            local part = v.PrimaryPart or v:FindFirstChildWhichIsA("BasePart")
+            if part and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                LocalPlayer.Character.HumanoidRootPart.CFrame = part.CFrame + Vector3.new(0, 3, 0)
+                SendNotification("KUALE HUB", "¡Teleportado al Huevo Divino!", 2)
+                return
+            end
+        end
+    end
+    SendNotification("KUALE HUB", "No se encontró huevo disponible.", 2)
+end)
+
+-- 3. TELEPORT A ZONA SEGURA (BASE)
 CreateButton("🏠 Teleport a Zona Segura (Base)", 3, function()
-    local char = LocalPlayer.Character
-    if char and char:FindFirstChild("HumanoidRootPart") then
-        char.HumanoidRootPart.CFrame = CFrame.new(0, 15, 0)
-        SendNotification("KUALE HUB", "Teletransportado a la base segura.", 3)
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(0, 12, 0) 
+        SendNotification("KUALE HUB", "Teleportado a Zona Segura.", 2)
     end
 end)
 
--- 4. SISTEMA DE VUELO
-CreateButton("✈️ Activar / Desactivar Vuelo (Fly)", 4, function()
-    flying = not flying
+-- 4. VUELO FLUIDO (Sin noclip de paredes)
+CreateButton("🦅 Activar / Desactivar Vuelo (Fly)", 4, function()
+    flyEnabled = not flyEnabled
     local char = LocalPlayer.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
     
-    local hrp = char.HumanoidRootPart
-    local humanoid = char:FindFirstChildOfClass("Humanoid")
-    
-    if flying then
-        humanoid.PlatformStand = true
-        bodyVelocity = Instance.new("BodyVelocity")
-        bodyVelocity.Velocity = Vector3.new(0, 0, 0)
-        bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-        bodyVelocity.Parent = hrp
-        
-        bodyGyro = Instance.new("BodyGyro")
-        bodyGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-        bodyGyro.CFrame = hrp.CFrame
-        bodyGyro.Parent = hrp
-        
+    if flyEnabled then
+        SendNotification("KUALE HUB", "Vuelo Activado (Vuela sobre las paredes)", 2)
         task.spawn(function()
-            while flying do
+            local hrp = char.HumanoidRootPart
+            local bv = Instance.new("BodyVelocity")
+            bv.Name = "KualeFlyVel"
+            bv.Parent = hrp
+            bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+            bv.Velocity = Vector3.new(0, 0, 0)
+            
+            while flyEnabled and char and char:FindFirstChild("HumanoidRootPart") do
                 local cam = Workspace.CurrentCamera
-                bodyVelocity.Velocity = cam.CFrame.LookVector * 65
-                bodyGyro.CFrame = cam.CFrame
+                bv.Velocity = cam.CFrame.LookVector * 70
                 task.wait()
             end
+            if bv then bv:Destroy() end
         end)
-        SendNotification("KUALE HUB", "Vuelo activado.", 2)
     else
-        humanoid.PlatformStand = false
-        if bodyVelocity then bodyVelocity:Destroy() end
-        if bodyGyro then bodyGyro:Destroy() end
-        SendNotification("KUALE HUB", "Vuelo desactivado.", 2)
+        SendNotification("KUALE HUB", "Vuelo Desactivado", 2)
+        if char.HumanoidRootPart:FindFirstChild("KualeFlyVel") then
+            char.HumanoidRootPart.KualeFlyVel:Destroy()
+        end
     end
 end)
 
--- 5. ANTI-BATE & ANTI-TRAMPAS
-CreateButton("🛡️ Anti-Bate & Anti-Daño", 5, function()
-    RunService.Stepped:Connect(function()
-        for _, player in pairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer and player.Character then
-                for _, tool in pairs(player.Character:GetChildren()) do
-                    if tool:IsA("Tool") then
-                        for _, part in pairs(tool:GetDescendants()) do
-                            if part:IsA("BasePart") then
-                                part.CanTouch = false
+-- 5. ANTI-GUARDIAS & ANTI-BAHIA
+CreateButton("🛡️ Anti-Guardias (Evita daños)", 5, function()
+    antiGuardEnabled = not antiGuardEnabled
+    if antiGuardEnabled then
+        SendNotification("KUALE HUB", "Anti-Guardias Activo", 2)
+        RunService.Stepped:Connect(function()
+            if antiGuardEnabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                for _, enemy in pairs(Workspace:GetChildren()) do
+                    if enemy:FindFirstChild("Humanoid") and enemy.Name ~= LocalPlayer.Name then
+                        if enemy:FindFirstChild("HumanoidRootPart") then
+                            if (enemy.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 18 then
+                                enemy.HumanoidRootPart.CFrame = CFrame.new(9999, 9999, 9999)
                             end
                         end
                     end
                 end
             end
-        end
-    end)
-    SendNotification("KUALE HUB", "Protección Anti-Bate activada.", 3)
+        end)
+    else
+        SendNotification("KUALE HUB", "Anti-Guardias Desactivado", 2)
+    end
 end)
 
--- 6. NOCLIP
-CreateButton("👻 Activar Noclip (Paredes)", 6, function()
-    noclip = not noclip
-    RunService.Stepped:Connect(function()
-        if noclip and LocalPlayer.Character then
-            for _, part in pairs(LocalPlayer.Character:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CanCollide = false
-                end
-            end
-        end
-    end)
-    SendNotification("KUALE HUB", "Modo Noclip cambiado.", 2)
+-- 6. ESPAWNEADOR DE HUEVOS DIVINOS (Visualizador Externo en el Servidor)
+CreateButton("✨ Spawnear Huevo Divino (Custom)", 6, function()
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local pos = LocalPlayer.Character.HumanoidRootPart.Position + (LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * 5)
+        
+        -- Crear Base del Huevo Divino con sus Billones visibles en el servidor local
+        local fakeEgg = Instance.new("Part")
+        fakeEgg.Name = "HuevoDivino_Custom"
+        fakeEgg.Size = Vector3.new(4, 5, 4)
+        fakeEgg.Position = pos
+        fakeEgg.Color = Color3.fromRGB(255, 0, 128)
+        fakeEgg.Material = Enum.Material.Neon
+        fakeEgg.Anchored = false
+        fakeEgg.Parent = Workspace
+        
+        local bill = Instance.new("BillboardGui")
+        bill.Size = UDim2.new(0, 160, 0, 70)
+        bill.StudsOffset = Vector3.new(0, 4, 0)
+        bill.AlwaysOnTop = true
+        bill.Parent = fakeEgg
+        
+        local txt = Instance.new("TextLabel")
+        txt.Size = UDim2.new(1, 0, 1, 0)
+        txt.BackgroundTransparency = 1
+        txt.Font = Enum.Font.GothamBold
+        txt.TextSize = 14
+        txt.TextColor3 = Color3.fromRGB(0, 255, 255)
+        txt.TextStrokeTransparency = 0
+        txt.Text = "🌟 HUEVO DIVINO 🌟\n💎 Valor: 950 Billones"
+        txt.Parent = bill
+        
+        SendNotification("KUALE HUB", "¡Huevo Divino spawneado frente a ti!", 3)
+    end
 end)
 
-SendNotification("KUALE HUB", "¡Cargado con éxito para Delta!", 4)
+SendNotification("KUALE HUB", "¡Versión Divina cargada correctamente!", 3)
